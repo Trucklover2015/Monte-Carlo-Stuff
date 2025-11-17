@@ -1,7 +1,7 @@
-import requests
+import requests as request
 import pandas as pd
 
-url =
+url = ""
 
 response = request.get(url)
 
