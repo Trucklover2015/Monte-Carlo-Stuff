@@ -11,7 +11,7 @@ from Team_Abbreviations import resolve_team_name
 from Data_Scraper import get_expected_scores
 
 
-def monte_carlo(team1_name, team2_name, year, num_simulations=10000, show_plot=True):
+def monte_carlo(team1_name, team2_name, year, num_simulations=100000, show_plot=True):
     """
     Run a Monte Carlo simulation for team1 vs team2 using stats scraped
     from the NFL for the given year.
@@ -38,6 +38,8 @@ def monte_carlo(team1_name, team2_name, year, num_simulations=10000, show_plot=T
     print(f"{team1_name} win probability: {team1_win_prob:.3%}")
     print(f"{team2_name} win probability: {team2_win_prob:.3%}")
     print(f"Tie probability: {tie_prob:.3%}")
+    print(f"Mean scores over simulations: {team1_name}: {np.mean(team1_score):.2f}, {team2_name}: {np.mean(team2_score):.2f}")
+    print(f"Standard deviation of scores: {team1_name}: {np.std(team1_score):.2f}, {team2_name}: {np.std(team2_score):.2f}")
 
     if show_plot:
         plt.figure(figsize=(10, 5))
@@ -62,13 +64,13 @@ def monte_carlo(team1_name, team2_name, year, num_simulations=10000, show_plot=T
 
 
 if __name__ == "__main__":
-    team1_raw = input("Enter Team 1 (full name or abbreviation, e.g. KC, SF, DAL): ")
+    team1_raw = input("Enter Team 1 (full name or abbreviation): ")
     team2_raw = input("Enter Team 2 (full name or abbreviation): ")
 
     team1_name = resolve_team_name(team1_raw)
     team2_name = resolve_team_name(team2_raw)
 
-    year_str = input("Enter season year (e.g. 2024): ").strip()
+    year_str = input("Enter season year: ").strip()
     try:
         year = int(year_str)
     except ValueError:
