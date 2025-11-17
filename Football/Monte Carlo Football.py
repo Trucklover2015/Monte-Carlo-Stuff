@@ -8,7 +8,7 @@ from Data_Scraper import get_expected_scores
 sns.set_style('whitegrid')
 
 
-def monte_carlo(team1_name, team2_name, year=2024, num_simulations=10000, show_plot=True):
+def monte_carlo(team1_name, team2_name, year=2025, num_simulations=10000, show_plot=True):
     team1_expected_score, team2_expected_score, team1_stats, team2_stats = \
         get_expected_scores(team1_name, team2_name, year=year)
 
