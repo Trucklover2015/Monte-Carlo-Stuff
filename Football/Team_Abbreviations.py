@@ -1,3 +1,5 @@
+# Team_Abbreviations.py
+
 TEAM_ABBREVIATIONS = {
     "ARI": "Arizona Cardinals",
     "ATL": "Atlanta Falcons",
@@ -30,21 +32,29 @@ TEAM_ABBREVIATIONS = {
     "SEA": "Seattle Seahawks",
     "TB":  "Tampa Bay Buccaneers",
     "TEN": "Tennessee Titans",
-    "WAS": "Washington Commanders"
+    "WAS": "Washington Commanders",
 }
 
-def resolve_team_name(user_input):
+
+def resolve_team_name(user_input: str) -> str:
+    """
+    Convert user input into a full team name.
+    Accepts:
+      - Abbreviations (KC, BUF, DAL, etc.)
+      - Exact full names (Kansas City Chiefs, etc.)
+    """
     ui = user_input.strip().upper()
 
+    # Abbreviation
     if ui in TEAM_ABBREVIATIONS:
         return TEAM_ABBREVIATIONS[ui]
-    
-    formatted = user_input.title()
-    
+
+    # Exact full name (case-insensitive)
+    formatted = user_input.strip().title()
     if formatted in TEAM_ABBREVIATIONS.values():
         return formatted
 
     raise ValueError(
         f"'{user_input}' is not a valid team name or abbreviation.\n"
-        f"Valid abbreviations are:\n{', '.join(TEAM_ABBREVIATIONS.keys())}"
+        f"Valid abbreviations are:\n{', '.join(sorted(TEAM_ABBREVIATIONS.keys()))}"
     )

@@ -1,14 +1,22 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from Data_Scraper import get_expected_scores
 from Team_Abbreviations import resolve_team_name
 
+sns.set_style('whitegrid')
+sns = None
+
+from Team_Abbreviations import resolve_team_name
 from Data_Scraper import get_expected_scores
 
-sns.set_style('whitegrid')
 
-
-def monte_carlo(team1_name, team2_name, year=2025, num_simulations=10000, show_plot=True):
+def monte_carlo(team1_name, team2_name, year, num_simulations=10000, show_plot=True):
+    """
+    Run a Monte Carlo simulation for team1 vs team2 using stats scraped
+    from the NFL for the given year.
+    """
+    print(f"Getting expected scores for {team1_name} vs {team2_name} (Year: {year})...")
     team1_expected_score, team2_expected_score, team1_stats, team2_stats = \
         get_expected_scores(team1_name, team2_name, year=year)
 
@@ -35,10 +43,11 @@ def monte_carlo(team1_name, team2_name, year=2025, num_simulations=10000, show_p
         plt.figure(figsize=(10, 5))
         plt.hist(team1_score, bins=range(0, 60), alpha=0.5, label=team1_name)
         plt.hist(team2_score, bins=range(0, 60), alpha=0.5, label=team2_name)
-        plt.title("Simulated Score Distributions")
+        plt.title(f"Simulated Score Distributions ({year} season)")
         plt.xlabel("Points Scored")
         plt.ylabel("Frequency")
         plt.legend()
+        plt.tight_layout()
         plt.show()
 
     return {
@@ -53,10 +62,24 @@ def monte_carlo(team1_name, team2_name, year=2025, num_simulations=10000, show_p
 
 
 if __name__ == "__main__":
-    team1_raw = input("Enter Team 1 (full name or abbreviation): ")
+    team1_raw = input("Enter Team 1 (full name or abbreviation, e.g. KC, SF, DAL): ")
     team2_raw = input("Enter Team 2 (full name or abbreviation): ")
+
     team1_name = resolve_team_name(team1_raw)
     team2_name = resolve_team_name(team2_raw)
-    print(f"\nTeams selected: {team1_name} vs {team2_name}\n")
 
-    monte_carlo(team1_name, team2_name, year=2025, num_simulations=10000, show_plot=True)
+    year_str = input("Enter season year (e.g. 2024): ").strip()
+    try:
+        year = int(year_str)
+    except ValueError:
+        year = 2024
+        print("Invalid year entered, defaulting to 2024.")
+
+    print(f"\nTeams selected: {team1_name} vs {team2_name} (Year: {year})\n")
+
+    try:
+        monte_carlo(team1_name, team2_name, year=year,
+                    num_simulations=10000, show_plot=True)
+    except RuntimeError as e:
+        print("\nError during simulation:")
+        print(e)
