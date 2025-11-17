@@ -20,10 +20,6 @@ def monte_carlo(team1_name, team2_name, year, num_simulations=100000, show_plot=
     team1_expected_score, team2_expected_score, team1_stats, team2_stats = \
         get_expected_scores(team1_name, team2_name, year=year)
 
-    print("\nEstimated scoring based on stats:")
-    print(f"{team1_stats['team']}: {team1_expected_score:.2f} points")
-    print(f"{team2_stats['team']}: {team2_expected_score:.2f} points\n")
-
     team1_score = np.random.poisson(team1_expected_score, size=num_simulations)
     team2_score = np.random.poisson(team2_expected_score, size=num_simulations)
 
@@ -38,7 +34,9 @@ def monte_carlo(team1_name, team2_name, year, num_simulations=100000, show_plot=
     print(f"{team1_name} win probability: {team1_win_prob:.3%}")
     print(f"{team2_name} win probability: {team2_win_prob:.3%}")
     print(f"Tie probability: {tie_prob:.3%}")
-    print(f"Mean scores over simulations: {team1_name}: {np.mean(team1_score):.2f}, {team2_name}: {np.mean(team2_score):.2f}")
+    print("\nEstimated scoring based on stats:")
+    print(f"{team1_name}: {team1_expected_score:.2f} points")
+    print(f"{team2_name}: {team2_expected_score:.2f} points\n")
     print(f"Standard deviation of scores: {team1_name}: {np.std(team1_score):.2f}, {team2_name}: {np.std(team2_score):.2f}")
 
     if show_plot:

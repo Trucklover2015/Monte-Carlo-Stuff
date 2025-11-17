@@ -45,11 +45,9 @@ def resolve_team_name(user_input: str) -> str:
     """
     ui = user_input.strip().upper()
 
-    # Abbreviation
     if ui in TEAM_ABBREVIATIONS:
         return TEAM_ABBREVIATIONS[ui]
 
-    # Exact full name (case-insensitive)
     formatted = user_input.strip().title()
     if formatted in TEAM_ABBREVIATIONS.values():
         return formatted

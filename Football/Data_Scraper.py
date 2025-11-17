@@ -1,8 +1,8 @@
 import requests as request
 import pandas as pd
+from io import StringIO
 
-
-def fetch_ppg_table(year: int = 2023) -> pd.DataFrame:
+def fetch_ppg_table(year: int = 2025) -> pd.DataFrame:
     """
     Fetch and clean PF/PA from NFL.com league standings for a given year.
     Returns a DataFrame with:
@@ -30,8 +30,7 @@ def fetch_ppg_table(year: int = 2023) -> pd.DataFrame:
 
     html = resp.text
 
-    # Grab all tables; find the one with PF and PA in the columns
-    tables = pd.read_html(html)
+    tables = pd.read_html(StringIO(html))
     print(f"Found {len(tables)} tables on the page.")
 
     standings_df = None
@@ -45,10 +44,10 @@ def fetch_ppg_table(year: int = 2023) -> pd.DataFrame:
         raise RuntimeError("Could not find a table with PF and PA on the NFL standings page.")
 
     df = standings_df
-    # print("Raw standings table head:")
-    # print(df.head())
-    # print("Raw columns:")
-    # print(df.columns)
+    ### print("Raw standings table head:")
+    ### print(df.head())
+    ### print("Raw columns:")
+    ### print(df.columns)
 
     # Heuristic: first column is usually team text; may be named e.g. 'Team' or the division name
     team_col = df.columns[0]
@@ -77,7 +76,6 @@ def fetch_ppg_table(year: int = 2023) -> pd.DataFrame:
     if all(c in out.columns for c in ["W", "L", "T"]):
         out["Games"] = out["W"] + out["L"] + out["T"]
     else:
-        # Fallback: assume 17 games, but this is rarely needed if W/L/T present
         out["Games"] = 17
 
     # Drop header/summary rows with NaNs or 0 games
@@ -88,11 +86,10 @@ def fetch_ppg_table(year: int = 2023) -> pd.DataFrame:
     out["PF_perG"] = out["PF"] / out["Games"]
     out["PA_perG"] = out["PA"] / out["Games"]
 
-    print("\nCleaned PF/PA per-game table head:")
-    print(out[["Team", "PF_perG", "PA_perG"]].head())
+    ### print("\nCleaned PF/PA per-game table head:")
+    ### print(out[["Team", "PF_perG", "PA_perG"]].head())
 
     return out[["Team", "PF_perG", "PA_perG"]]
-
 
 def get_team_stats(df: pd.DataFrame, team_name: str) -> dict:
     """
@@ -109,29 +106,19 @@ def get_team_stats(df: pd.DataFrame, team_name: str) -> dict:
     team_name_clean = team_name.strip()
     teams_series = df["Team"].astype(str)
 
-    # 1) Exact match
     row = df[teams_series == team_name_clean]
-
-    # normalized lowercase column for fuzzy search
     teams_lower = teams_series.str.lower()
     name_lower = team_name_clean.lower()
-
-    # 2) contains full name
     if row.empty:
         row = df[teams_lower.str.contains(name_lower, na=False)]
-
-    # 3) mascot only (last word: e.g. 'Chiefs')
     if row.empty:
         parts = team_name_clean.split()
         if parts:
             mascot = parts[-1].lower()
             row = df[teams_lower.str.contains(mascot, na=False)]
-
-    # 4) city/region only (everything except last word)
     if row.empty and len(team_name_clean.split()) > 1:
         city = " ".join(team_name_clean.split()[:-1]).lower()
         row = df[teams_lower.str.contains(city, na=False)]
-
     if row.empty:
         print("\nAvailable teams in table (raw 'Team' column):")
         print(teams_series.tolist())
@@ -141,11 +128,10 @@ def get_team_stats(df: pd.DataFrame, team_name: str) -> dict:
     row = row.iloc[0]
 
     return {
-        "team": row["Team"],             # actual text from table
+        "team": row["Team"],
         "off_ppg": row["PF_perG"],
         "def_ppg_allowed": row["PA_perG"],
     }
-
 
 def estimate_expected_points(team_off_ppg: float, opp_def_ppg_allowed: float) -> float:
     """
@@ -154,8 +140,7 @@ def estimate_expected_points(team_off_ppg: float, opp_def_ppg_allowed: float) ->
     """
     return (team_off_ppg + opp_def_ppg_allowed) / 2.0
 
-
-def get_expected_scores(team1_name: str, team2_name: str, year: int = 2023):
+def get_expected_scores(team1_name: str, team2_name: str, year: int = 2025):
     """
     High-level helper: fetch league data from NFL.com, pull both teams' stats,
     and compute expected scores for each team.
@@ -177,9 +162,7 @@ def get_expected_scores(team1_name: str, team2_name: str, year: int = 2023):
 
     return team1_expected, team2_expected, team1_stats, team2_stats
 
-
-# Optional: quick test if you run this file directly
 if __name__ == "__main__":
-    df = fetch_ppg_table(2023)
+    df = fetch_ppg_table(2025)
     print("\nTeams found (raw 'Team' strings):")
     print(df["Team"].tolist())
